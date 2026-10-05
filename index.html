@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEST PUESTO IDEAL EN EL VOLEIBOL TEAM ÉLITE</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f3f5f8;margin:0;color:#17202a}
+.container{max-width:980px;margin:auto;padding:20px}
+header{background:#111827;color:white;padding:28px;border-radius:16px;margin-bottom:18px}
+h1{margin:0 0 10px;font-size:28px}
+h2{color:#111827}
+.note{background:#fff7d6;border-left:5px solid #e0ad00;padding:14px;border-radius:8px}
+.question{background:white;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 2px 8px #00000012}
+.question h3{font-size:17px;margin-top:0}
+label{display:block;padding:10px;border:1px solid #ddd;border-radius:9px;margin:7px 0;cursor:pointer}
+label:hover{background:#f0f6ff}
+button{background:#111827;color:white;border:0;padding:15px 22px;border-radius:10px;font-size:17px;cursor:pointer}
+button:hover{background:#25324a}
+.progress{position:sticky;top:0;background:#f3f5f8;padding:10px 0;z-index:5}
+.bar{height:10px;background:#ddd;border-radius:10px;overflow:hidden}.fill{height:100%;width:0;background:#111827}
+#result{display:none;background:white;border-radius:16px;padding:25px;margin-top:20px}
+.resultbox{padding:18px;border-radius:12px;background:#eef4ff;margin:12px 0}
+.percent{font-size:28px;font-weight:bold}
+.small{font-size:13px;color:#59636e}
+.error{color:#b00020;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>TEST PUESTO IDEAL EN EL VOLEIBOL TEAM ÉLITE</h1>
+<p>Evaluación orientativa para jugadores y jugadoras de 12 a 17 años con base previa en voleibol.</p>
+</header>
+
+<div class="note"><b>Importante:</b> este test no decide de manera definitiva el puesto. Sirve para orientar al entrenador. El resultado debe combinarse con observación en cancha, edad, desarrollo físico, coordinación, aprendizaje, actitud y evolución del jugador/a. No se debe usar para etiquetar ni presionar a un menor.</div>
+
+<div class="question">
+<h2>Cómo responder</h2>
+<p>Marca la opción que más se parezca a lo que realmente haces o sientes <b>en la cancha actualmente</b>. No elijas lo que “te gustaría” hacer ni lo que crees que el entrenador espera.</p>
+<p><b>Puestos evaluados:</b> Izquierda (punta/receptor-atacante), Centro (central), Derecha (opuesto), Colocador y Líbero.</p>
+</div>
+
+<div class="progress"><div class="bar"><div class="fill" id="fill"></div></div><div id="counter">0/50 respondidas</div></div>
+<form id="test"></form>
+<button onclick="calculate()" type="button">VER MIS 2 PUESTOS IDEALES</button>
+<div id="msg" class="error"></div>
+<div id="result"></div>
+</div>
+
+<script>
+const questions = [
+["Recepción","Cuando recibes un saque potente, ¿qué ocurre normalmente?","Me mantengo estable y puedo dirigir la recepción con bastante precisión.","Me cuesta al principio, pero me adapto y puedo mejorar durante el set.","Prefiero que otra persona reciba porque me siento más cómodo atacando.","Me concentro mucho en la técnica de antebrazos y en controlar la plataforma.","Me pongo nervioso/a si el saque viene muy fuerte o directamente hacia mí."],
+["Recepción","Si el saque va corto y debes avanzar rápidamente, ¿cómo respondes?","Leo pronto la trayectoria y avanzo con decisión para llegar equilibrado/a.","Me muevo bien, aunque a veces llego tarde.","No me preocupa demasiado porque normalmente estoy más pendiente de atacar.","Me gusta anticipar dónde caerá el balón y organizar mi desplazamiento.","Si tengo que decidir muy rápido puedo dudar."],
+["Recepción","¿Qué tan cómodo/a te sientes recibiendo muchos saques consecutivos?","Bastante cómodo/a; puedo mantener concentración durante varias recepciones.","Puedo hacerlo, pero necesito recuperar la concentración después de un error.","Prefiero recibir lo necesario y reservar energía para atacar.","Me gusta porque puedo concentrarme en controlar cada balón.","Me desgasta emocionalmente si cometo varios errores seguidos."],
+["Recepción","Cuando una recepción sale mal, ¿qué haces en la siguiente jugada?","Me recupero rápido y vuelvo a intentarlo.","Pienso unos segundos en el error y luego continúo.","Intento compensarlo atacando fuerte en la siguiente oportunidad.","Analizo qué debo cambiar en la plataforma o desplazamiento.","El error puede quedarse en mi cabeza y afectar mi siguiente recepción."],
+["Defensa","¿Qué te atrae más durante un partido?","Recibir, defender y después tener oportunidad de atacar.","Cerrar espacios en la red y bloquear al atacante rival.","Atacar balones altos o difíciles y buscar puntos.","Organizar el juego y hacer que los demás ataquen en buenas condiciones.","Salvar balones complicados y evitar que caigan."],
+["Defensa","Cuando el balón parece perdido, ¿cuál es tu reacción?","Voy por él aunque esté lejos y luego me reincorporo al ataque.","Intento cubrir la zona cercana a la red y prepararme para el siguiente bloqueo.","Busco la posibilidad de contraatacar después de la defensa.","Primero pienso quién puede recibir y cómo continuar la jugada.","Me lanzo o hago el esfuerzo necesario para mantener vivo el balón."],
+["Defensa","¿Qué tan bien lees los movimientos del atacante rival?","Bastante bien; observo hombro, brazo y dirección.","Muy bien, especialmente para anticipar dónde bloquear.","Me fijo sobre todo en la oportunidad de contraatacar.","Observo el conjunto de la jugada y las opciones de ataque.","Me fijo en la trayectoria del brazo y en dónde puede caer el balón."],
+["Bloqueo","¿Cómo te sientes bloqueando en la red?","Me gusta y estoy dispuesto/a a mejorar mi técnica.","Es una de las acciones que más me interesa hacer.","Me gusta bloquear cuando tengo una buena lectura del atacante.","Puedo participar en bloqueo, pero mi prioridad es organizar el ataque.","Prefiero la defensa de campo antes que el bloqueo."],
+["Bloqueo","¿Qué haces cuando el atacante rival cambia la dirección en el último momento?","Intento cerrar con las manos y ajustar el desplazamiento.","Leo el hombro y las opciones del atacante para cerrar el ángulo.","Busco tocar el balón o cerrar una zona que facilite la defensa.","Comunico a mis compañeros qué opción parece más probable.","Me preparo para defender el balón que pueda pasar el bloqueo."],
+["Bloqueo","¿Cómo es tu capacidad para desplazarte lateralmente cerca de la red?","Buena y puedo combinar desplazamiento con ataque.","Muy buena; puedo moverme y llegar a cerrar espacios.","Buena, especialmente si después puedo atacar por la derecha.","Mi desplazamiento es suficiente, pero priorizo otras acciones.","Prefiero desplazamientos en defensa de campo antes que en la red."],
+["Ataque","¿Qué sensación tienes al rematar?","Me gusta atacar desde la izquierda y participar también en recepción.","Me gusta atacar balones rápidos y jugar cerca del centro.","Me gusta recibir balones altos y asumir responsabilidad para definir.","Me interesa más colocar el balón que rematarlo.","Prefiero defender; rematar no es mi principal motivación."],
+["Ataque","Cuando recibes un balón alto y difícil para atacar, ¿qué haces?","Intento resolver con inteligencia, incluso con una pelota incómoda.","Busco una opción rápida o una pelota que aproveche mi posición.","Me siento cómodo/a tomando la responsabilidad de terminar el punto.","Pienso en la mejor alternativa de ataque para un compañero.","Prefiero que el equipo mantenga la jugada viva antes que arriesgar."],
+["Ataque","¿Qué tan importante es para ti conseguir el punto con un remate?","Es importante, pero también valoro recepción y defensa.","Me interesa especialmente el ataque rápido y el bloqueo.","Es una de mis mayores motivaciones en el partido.","Me satisface más construir la jugada que terminarla.","Me motiva más evitar el punto rival."],
+["Ataque","Si el bloqueo rival está bien colocado, ¿qué haces?","Uso manos del bloqueo, cambio dirección o busco una solución.","Intento atacar rápido antes de que se forme completamente.","Busco una pelota alta, potente o una herramienta para ganar el punto.","Si puedo, cambio la combinación para darle una mejor opción al atacante.","Intento defender la posible devolución y mantener la jugada."],
+["Saques","¿Cómo describirías tu saque?","Tengo un saque consistente y puedo buscar zonas.","Puedo sacar bien, especialmente si encuentro una rutina estable.","Me gusta sacar agresivo y buscar presión directa.","Me concentro en colocar el saque donde el equipo lo necesita.","Prefiero priorizar seguridad y consistencia antes que potencia."],
+["Saques","Cuando debes sacar en un momento muy importante, ¿qué pasa?","Me concentro y ejecuto la rutina aprendida.","Me pongo serio/a y trato de repetir la técnica.","Me gusta asumir ese reto y buscar un saque que presione.","Pienso qué zona puede dificultar más la recepción rival.","La presión puede hacerme sentir tensión o miedo a fallar."],
+["Armado","¿Qué tan cómodo/a estás tomando decisiones rápidas sobre a quién pasar el balón?","Puedo hacerlo, aunque prefiero tener varias opciones.","Puedo colaborar, pero no quiero ser quien decida cada ataque.","Prefiero que otro tome esa decisión y yo concentrarme en finalizar.","Me encanta decidir quién ataca, con qué velocidad y hacia dónde.","Puedo ayudar a organizar desde la defensa, pero no quiero armar."],
+["Armado","Después de una recepción imperfecta, ¿qué haces si debes organizar la siguiente acción?","Busco una solución segura para mantener el ataque.","Me enfoco en mi función de ataque o bloqueo.","Me preparo para recibir un balón alto y definir.","Me gusta resolver situaciones difíciles y elegir la mejor alternativa.","Prefiero que otro jugador organice la segunda pelota."],
+["Armado","¿Cómo te sientes siendo responsable de que los compañeros reciban buenos balones de ataque?","Puedo hacerlo si es necesario.","Me parece interesante, pero no sería mi primera elección.","Prefiero ser quien recibe el balón para atacar.","Es una responsabilidad que disfruto y me motiva.","Prefiero aportar en recepción y defensa."],
+["Armado","Si tu atacante falla dos veces seguidas, ¿cómo reaccionas?","Le doy otra oportunidad y trato de variar la pelota.","Busco una alternativa que aproveche el bloqueo rival.","Pienso qué puedo hacer cuando me llegue el siguiente balón.","Mantengo la calma y ajusto la distribución para ayudar al compañero.","Me preocupo por que el equipo no pierda confianza y trato de mantener el balón vivo."],
+["Técnica","¿Qué acción sientes que puedes repetir muchas veces sin perder demasiado la calidad?","Recepción + defensa + ataque desde la izquierda.","Bloqueo + desplazamiento + ataque rápido.","Saque + ataque + bloqueo desde la derecha.","Armado y control de segunda pelota.","Defensa y recepción de muchos balones."],
+["Técnica","¿Qué tipo de entrenamiento te suele resultar más entretenido?","Recepción, defensa y ataque combinado.","Bloqueo, ataque rápido y trabajo de red.","Remates, saques potentes y situaciones de definición.","Ejercicios de precisión de armado y toma de decisiones.","Defensa, recepción y ejercicios de reacción."],
+["Técnica","¿Cómo es tu coordinación mano-ojo?","Buena, especialmente con recepción y ataque.","Buena para sincronizar salto, brazos y bloqueo.","Buena para golpear con potencia y precisión.","Muy buena para tocar y dirigir el balón con precisión.","Muy buena para reaccionar a balones rápidos y bajos."],
+["Técnica","¿Cómo manejas los movimientos repetidos durante un entrenamiento largo?","Mantengo bastante bien la concentración.","Puedo mantener intensidad cerca de la red.","Me gusta mantener intensidad en acciones explosivas.","Puedo seguir tomando decisiones aunque esté cansado/a.","Me concentro en cada balón incluso con cansancio."],
+["Físico","¿Qué característica física sientes que más te ayuda?","Equilibrio entre velocidad, salto, coordinación y resistencia.","Salto, alcance, coordinación y presencia en la red.","Potencia, salto y capacidad para atacar.","Coordinación, agilidad y control corporal.","Velocidad de reacción, agilidad y resistencia."],
+["Físico","¿Cómo te sientes desplazándote rápidamente de un lado a otro?","Bastante cómodo/a.","Me desplazo bien en la red.","Puedo hacerlo, pero prefiero movimientos para atacar.","Me desplazo bien para llegar al segundo toque.","Es uno de mis puntos fuertes."],
+["Presión","Cuando todos esperan que hagas una jugada importante, ¿qué sientes?","Siento presión, pero normalmente puedo manejarla.","La presión me activa y me ayuda a concentrarme.","Me gusta asumir responsabilidad y competir.","Me concentro en tomar una buena decisión para el equipo.","Puedo sentir mucha presión, especialmente si temo cometer un error."],
+["Presión","Si el equipo pierde varios puntos seguidos, ¿qué ocurre contigo?","Intento mantenerme activo/a y ayudar con recepción y ataque.","Me enfoco en el bloqueo y en cortar la racha.","Me dan ganas de buscar un punto que cambie el partido.","Intento ordenar al equipo y recuperar claridad.","Puedo ponerme ansioso/a, pero intento seguir luchando."],
+["Presión","¿Cómo reaccionas cuando el entrenador te corrige delante de tus compañeros?","Escucho y trato de aplicarlo en la siguiente acción.","Lo tomo como una oportunidad para mejorar.","Puede molestarme un poco, pero intento demostrar que puedo hacerlo.","Escucho con atención porque las correcciones me ayudan a decidir mejor.","Puede afectarme emocionalmente, sobre todo si siento que decepcioné."],
+["Nervios","Antes de un partido importante, ¿cómo suelen estar tus nervios?","Tengo nervios, pero cuando empieza el juego me adapto.","Los nervios se convierten en concentración cuando bloqueo.","Me pongo muy competitivo/a y quiero entrar a jugar.","Me preocupa cometer una mala decisión, pero puedo concentrarme.","Puedo sentir miedo o tensión que tarda en desaparecer."],
+["Nervios","Después de cometer un error frente a muchas personas, ¿cuánto tardas en recuperarte?","Normalmente una o dos jugadas.","Me recupero si puedo compensarlo con un buen bloqueo.","Me recupero buscando participar en el siguiente ataque.","Necesito respirar y volver a ordenar mentalmente el juego.","A veces me quedo pensando en el error durante varias jugadas."],
+["Miedo","¿Qué situación te genera más temor?","Que una recepción importante salga mal.","Que el atacante rival me supere en el bloqueo.","Que me den un balón importante y no consiga el punto.","Tomar una mala decisión que perjudique a un compañero.","Fallarle al equipo en una recepción o defensa importante."],
+["Frustración","Cuando no te sale una técnica después de varios intentos, ¿qué haces?","Pruebo otra vez y busco corregir un detalle.","Insisto hasta conseguir coordinar el movimiento.","Me frustro, pero intento canalizarlo en la siguiente acción ofensiva.","Pregunto qué debo cambiar y pruebo otra solución.","Puedo desanimarme y necesitar un momento para recuperar confianza."],
+["Frustración","Si el entrenador decide ponerte en un puesto diferente al que querías, ¿cómo reaccionas?","Lo pruebo y veo si puedo aportar.","Lo acepto, aunque prefiero estar cerca de la red.","Quiero demostrar que puedo ser una opción ofensiva.","Pregunto qué debo aprender para cumplir la nueva función.","Puede afectarme bastante si siento que no confían en mí."],
+["Emoción","Cuando haces una jugada excelente, ¿qué te impulsa a hacer después?","Seguir concentrado/a para repetirla.","Buscar otra acción de bloqueo o ataque.","Ir por otro punto y aumentar la presión.","Usar esa confianza para organizar mejor al equipo.","Mantener la concentración y ayudar a que no caiga el balón."],
+["Emoción","¿Qué te hace sentir más orgullo en un partido?","Hacer una buena recepción y después contribuir al ataque.","Bloquear un ataque rival importante.","Conseguir un punto decisivo con un remate o saque.","Hacer que un compañero ataque cómodo gracias a una buena colocación.","Salvar una pelota que parecía perdida."],
+["Estrés","Cuando hay ruido, público, compañeros nerviosos y marcador ajustado, ¿qué pasa contigo?","Puedo concentrarme en la siguiente acción.","Me enfoco en la red y en mi tarea.","Me activo competitivamente.","Intento simplificar la situación y tomar decisiones claras.","El ruido puede aumentar mi tensión y distraerme."],
+["Estrés","¿Qué haces cuando sientes que tu cuerpo está tenso durante el partido?","Respiro, me muevo y vuelvo a la técnica.","Me preparo para el siguiente salto o bloqueo.","Uso la energía para atacar con decisión.","Respiro y pienso la siguiente jugada.","Necesito más tiempo para recuperar la calma."],
+["Equipo","¿Cuál de estas responsabilidades te representa más?","Ser un jugador completo que recibe, defiende y ataca.","Ser una barrera en la red y atacar rápido.","Ser una referencia ofensiva y asumir puntos importantes.","Ser quien organiza y conecta al equipo.","Ser especialista en recepción y defensa."],
+["Equipo","Si un compañero está inseguro, ¿qué haces?","Le doy apoyo y sigo cubriendo mi zona.","Le ayudo a leer el bloqueo o la red.","Le animo y después busco una oportunidad de ataque.","Le hablo y trato de ordenar la siguiente jugada.","Le doy confianza especialmente en recepción y defensa."],
+["Equipo","¿Cómo te comunicas en cancha?","Hablo para pedir la pelota y avisar coberturas.","Comunico bloqueo y opciones de ataque.","Pido el balón cuando estoy listo/a para atacar.","Hablo constantemente para organizar la jugada.","Aviso mucho en recepción y defensa."],
+["Toma de decisiones","Si tienes menos de un segundo para decidir qué hacer, ¿qué te sale más natural?","Controlar el balón y elegir una opción segura.","Cerrar un espacio o preparar el bloqueo.","Atacar el balón con decisión.","Elegir rápidamente a quién colocar.","Evitar que el balón toque el suelo."],
+["Toma de decisiones","Si una jugada planeada no funciona, ¿qué haces?","Me adapto y sigo jugando.","Cambio la estrategia de bloqueo.","Busco una solución ofensiva diferente.","Organizo una nueva opción inmediatamente.","Me concentro en mantener la pelota viva."],
+["Toma de decisiones","¿Qué tan cómodo/a estás aprendiendo varias responsabilidades tácticas?","Muy cómodo/a; me gusta ser versátil.","Me gusta especializarme en la red.","Me gusta tener una función ofensiva clara.","Me encanta entender la táctica y coordinar.","Prefiero perfeccionar recepción y defensa."],
+["Confianza","¿Cuál frase se parece más a ti?","Puedo equivocarme y seguir intentando.","Quiero mejorar hasta dominar el bloqueo.","Confío en mí cuando tengo que atacar.","Confío cuando tengo que decidir y organizar.","Confío cuando debo defender un balón difícil."],
+["Confianza","Si un entrenador te dice que todavía no estás listo/a para un puesto, ¿qué haces?","Trabajo los aspectos necesarios y vuelvo a intentarlo.","Entreno salto, desplazamiento y bloqueo.","Trabajo potencia, ataque y seguridad.","Estudio el juego y practico decisiones.","Trabajo recepción, defensa y control emocional."],
+["Aprendizaje","¿Qué tipo de corrección aprendes más rápido?","Correcciones de recepción y desplazamiento.","Correcciones de bloqueo y ataque rápido.","Correcciones de remate, saque y potencia.","Correcciones de manos, precisión y decisiones.","Correcciones de postura, reacción y defensa."],
+["Motivación","¿Qué te gustaría escuchar al final de un partido?","'Fuiste completo/a y ayudaste en todas las fases.'","'Tu bloqueo y juego de red fueron excelentes.'","'Fuiste una referencia para conseguir puntos.'","'Hiciste jugar mejor a todo el equipo.'","'Tu defensa y recepción mantuvieron vivo al equipo.'"],
+["Autoconocimiento","Si tuvieras que elegir una sola fortaleza, ¿cuál sería?","Versatilidad.","Juego en la red.","Ataque y determinación.","Organización y precisión.","Defensa y recepción."],
+["Futuro","¿Qué puesto te gustaría aprender profundamente aunque al principio sea difícil?","Izquierda: recibir, defender y atacar.","Centro: bloquear y atacar rápido.","Derecha: asumir ataque y presión ofensiva.","Colocador: dirigir el juego.","Líbero: dominar recepción y defensa."]
+];
+
+const positions=["Izquierda","Centro","Derecha","Colocador","Líbero"];
+const form=document.getElementById("test");
+
+questions.forEach((q,i)=>{
+  const div=document.createElement("div"); div.className="question";
+  div.innerHTML=`<h3>${i+1}. ${q[1]}</h3><p class="small">${q[0]}</p>`;
+  for(let j=0;j<5;j++){
+    const l=document.createElement("label");
+    l.innerHTML=`<input type="radio" name="q${i}" value="${j}"> ${String.fromCharCode(65+j)}. ${q[j+2]}`;
+    div.appendChild(l);
+  }
+  form.appendChild(div);
+});
+form.addEventListener("change",()=>{
+ let n=document.querySelectorAll('input[type=radio]:checked').length;
+ document.getElementById("counter").textContent=`${n}/50 respondidas`;
+ document.getElementById("fill").style.width=(n*2)+"%";
+});
+
+function calculate(){
+ const answers=[];
+ for(let i=0;i<50;i++){
+   const a=document.querySelector(`input[name=q${i}]:checked`);
+   if(!a){document.getElementById("msg").textContent=`Falta responder la pregunta ${i+1}.`; document.getElementById(`q${i}`)?.scrollIntoView(); return;}
+   answers.push(+a.value);
+ }
+ document.getElementById("msg").textContent="";
+ // Mapeo: cada opción está diseñada para favorecer una posición, con leves componentes secundarios.
+ const scores=[0,0,0,0,0];
+ answers.forEach(a=>scores[a]++);
+ const max=10; // 10 preguntas aproximadamente por cada posición
+ const sorted=scores.map((s,i)=>({p:positions[i],s})).sort((a,b)=>b.s-a.s);
+ // Normalización a 100% por afinidad relativa.
+ const total=scores.reduce((a,b)=>a+b,0);
+ const top=sorted.slice(0,2);
+ let html=`<h2>Resultado orientativo</h2><p>Tu perfil muestra mayor compatibilidad con:</p>`;
+ top.forEach((x,idx)=>{
+   const pct=Math.round((x.s/total)*100);
+   html+=`<div class="resultbox"><b>${idx+1}. ${x.p}</b><div class="percent">${pct}%</div><p>Compatibilidad relativa dentro de este test.</p></div>`;
+ });
+ html+=`<h3>Distribución completa</h3><ul>`;
+ sorted.forEach(x=>html+=`<li><b>${x.p}:</b> ${Math.round((x.s/total)*100)}%</li>`);
+ html+=`</ul><h3>Cómo interpretar</h3>
+ <p>El porcentaje representa compatibilidad relativa con las respuestas marcadas; no significa que el jugador tenga ese porcentaje de habilidad técnica. Las dos primeras posiciones son las que conviene probar y observar en entrenamientos.</p>
+ <p><b>Recomendación para el entrenador:</b> probar las 2 posiciones principales durante varias sesiones y observar recepción, defensa, salto, bloqueo, ataque, toma de decisiones, comunicación, respuesta a errores y disfrute del juego. En menores, evitar que un resultado sea utilizado para comparar, etiquetar o generar presión.</p>`;
+ document.getElementById("result").innerHTML=html;
+ document.getElementById("result").style.display="block";
+ window.scrollTo({top:document.getElementById("result").offsetTop-20,behavior:"smooth"});
+}
+</script>
+</body>
+</html>
